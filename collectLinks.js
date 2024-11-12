@@ -1,3 +1,9 @@
+const { url } = require('./app.js');
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Função para coletar links de uma página
 async function collectPageLinks(page) {
   const links = await page.evaluate(() => {
@@ -22,74 +28,46 @@ async function getLastPageNumber(page) {
   return lastPageButton;
 }
 
-async function clickPageButton(page) {
-  // Seleciona todos os botões que contêm números
-  const buttons = await page.$$('.sc-bwjutS'); // Usa $$ do Puppeteer, que é equivalente ao querySelectorAll
-
-  // Filtra os botões que contêm apenas números
-  const numericButtons = await page.evaluate((buttons) => {
-    // Verifica se a lista de botões não está vazia
-    if (!buttons || buttons.length === 0) return [];
-
-    return buttons.filter(button => {
-      // Verifica se o button tem textContent e se ele é um número válido
-      const text = button.textContent?.trim();
-      return text && /^[0-9]+$/.test(text);  // Verifica se é um número inteiro
-    }).map(button => button.textContent.trim());  // Coleta os números
-  }, buttons);
-
-  // if (numericButtons.length === 0) {
-  //   console.log("Nenhum botão numérico encontrado.");
-  //   return;
-  // }
-
-  // Ordena os botões numericamente
-  numericButtons.sort((a, b) => parseInt(a) - parseInt(b));
-
-  // Clica nos botões na ordem crescente
-  for (let index = 0; index < numericButtons.length; index++) {
-    const button = buttons[index];
-    setTimeout(() => {
-      button.click();
-    }, index * 500);  // Delay de 500ms entre os cliques
-  }
-}
-
-
-// Função principal para coletar links de todas as páginas
-async function collectLinks(page) {
+async function collectPagesLinks(page) {
   let allLinks = [];
-  let numpage = 1;  // Começa na primeira página
 
-  while (true) {
-    // Aguarda o carregamento da estrutura da classe `sc-entYTK eIIsMU`
-    await page.waitForSelector('.sc-entYTK.eIIsMU', { timeout: 5000 });
+  // Navega para a URL inicial
+  await page.goto(url);
+  await page.waitForSelector('body', { timeout: 100000 });
 
-    // Coleta links da página atual
+  await delay(1000);
+
+
+  console.log('Obtendo número de páginas forum');
+  // Obtém o número da última página
+  const lastPageButton = await getLastPageNumber(page);
+  await delay(2000);
+  // Modifica a URL para remover os parâmetros após "?"
+  const modifiedUrl = url.replace(/\?.*/, '');
+
+  console.log(`Número de páginas forum obtido: ${lastPageButton}`);
+  console.log(`Iniciando coleta de links:`, lastPageButton*10);
+  await delay(5000);
+
+  // Loop de páginas, começando da página 1
+  for (let x = 1; x <= lastPageButton; x++) {
+    // Navega para a URL da página atual
+    await page.goto(`${modifiedUrl}?page=${x}&search=&tab=forum`);
+
+    // Coleta os links da página atual
     const links = await collectPageLinks(page);
-    allLinks = [...allLinks, ...links];
-
-    // Verifica o número da última página disponível
-    const lastPageButton = await getLastPageNumber(page);
-    console.log(`Última página encontrada: ${lastPageButton}`);
-
-    // Se o número da página atual for maior ou igual ao número da última página, termina o loop
-    if (numpage >= lastPageButton) {
-      console.log("Não há mais páginas para coletar.");
-      break;
-    }
-
-    // Chama a função que clica nos botões de página na ordem crescente
-    await clickPageButton(page);
-
-    // Aguarda até que os links da próxima página sejam carregados
-    await page.waitForSelector('.sc-entYTK.eIIsMU', { timeout: 5000 });
-
-    // Atualiza o número da página
-    numpage++;
+    allLinks = [...allLinks, ...links];  // Adiciona os links encontrados à lista total
+    console.log(modifiedUrl);
+    console.log(allLinks);
+    await delay(2000);
   }
 
+  console.log('Links coletados');
+  await delay(5000);
+
+  // Retorna todos os links coletados
   return allLinks;
 }
 
-module.exports = collectLinks;
+// Exporta a função coletora de links
+module.exports = collectPagesLinks;

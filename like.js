@@ -10,7 +10,7 @@ function delay(ms) {
 async function clickVoteButtons(page) {
     try {
         // Aguarda até que os botões estejam disponíveis na página
-        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 10000 });
+        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 100000 });
     
         // Seleciona todos os botões que têm o ícone 'fa-chevron-up'
         const buttons = await page.$$('button.btn.btn-link i.fa-chevron-up');
@@ -66,7 +66,7 @@ async function like(page) {
         console.log(`Acessando link: ${i + 1}`);
 
         await page.goto(link, { timeout: 100000 }); // Aumenta o tempo de espera para 100 segundos
-        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 10000 }); // Aguarda o carregamento da página
+        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 100000 }); // Aguarda o carregamento da página
 
         // Chama a função para clicar nos botões de voto
         const sucesso = await clickVoteButtons(page);

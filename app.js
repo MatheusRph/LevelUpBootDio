@@ -17,11 +17,15 @@ const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=
 
   // Navega até a página desejada após o login
   await page.goto(url);
-
-  await like(page);
+  
+  // Chama a função coleta de links
+  await collectLinks(page);
+  // await like(page);
 
   console.log("Todos os links encontrados:", links.length);  // Exibe a quantidade de links coletados
 
   // Fecha o navegador
   await browser.close();
 })();
+
+module.exports = { url };
