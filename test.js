@@ -30,7 +30,7 @@ function delay(ms) {
   // Seletor da div
   let div = ".sc-bwjutS"; // Adicionei o ponto para indicar que é uma classe CSS
 
-  let npage = 1;
+  let npage = 2;
 
   const buttons = await page.$$(div);
 
