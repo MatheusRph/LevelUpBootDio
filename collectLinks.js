@@ -1,3 +1,5 @@
+const nextpages = require('./test');
+
 const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=1&search=&tab=forum";
 
 function delay(ms) {
@@ -38,13 +40,13 @@ async function collectPagesLinks(page) {
     timeout: 100000
   });
 
-  await delay(1000);
+  await delay(15000);
 
 
   console.log('Obtendo número de páginas forum');
   // Obtém o número da última página
   const lastPageButton = await getLastPageNumber(page);
-  await delay(2000);
+  await delay(5000);
 
   console.log(`Número de páginas forum obtido: ${lastPageButton}`);
   console.log(`Iniciando coleta de links:`, lastPageButton * 10);
@@ -57,27 +59,23 @@ async function collectPagesLinks(page) {
     console.log("Url válida:", modifiedUrl);
   }
 
-  await delay(5000);
+  await delay(15000);
 
-  // Loop de páginas, começando da página 1
-  for (let x = 1; x <= lastPageButton; x++) {
-    // Navega para a URL da página atual
-    const pageUrl = `${modifiedUrl}?page=${x}&search=&tab=forum`;
-    console.log(`Navegando para: ${pageUrl}`);
-    await page.goto(pageUrl);
-    await page.waitForSelector('body', {
-      timeout: 100000
-    });
-
+  for(i = 1; i <= lastPageButton+1; i++){
+    await delay(5000);
     // Coleta os links da página atual
     const links = await collectPageLinks(page);
     allLinks = [...allLinks, ...links]; // Adiciona os links encontrados à lista total
-    console.log(`Links coletados da página ${x}:`, links);
-    await delay(2000);
+    console.log(`Links coletados da página ${i}:`, links);
+    await delay(15000);
+    await nextpages(page, i+1);
+    await delay(5000);
   }
 
+
+
   console.log('Links coletados');
-  await delay(5000);
+  await delay(15000);
 
   // Retorna todos os links coletados
   return allLinks;

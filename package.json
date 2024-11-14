@@ -1,6 +1,14 @@
 {
   "dependencies": {
-    "puppeteer": "^23.7.1",
-    "puppeteer-core": "^23.7.1"
-  }
+    "puppeteer": "^23.8.0"
+  },
+  "name": "levelupbootdio",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
