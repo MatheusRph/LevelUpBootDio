@@ -82,7 +82,7 @@ async function nextpages(page, npage) {
       const xpath = buttonData[key].xpath;  // Acessando o XPath do botão correspondente
       console.log(`Clicando no botão da página: ${npage}`);
       await page.click(`xpath=${xpath}`);  // Clica no botão usando o XPath
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded' }); // Aguarda a navegação
+      await delay(1000);
       console.log('Ok6');
       return;
     }
