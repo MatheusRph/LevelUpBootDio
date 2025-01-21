@@ -4,7 +4,7 @@ const collectLinks = require('./collectLinks'); // Importa a função collectLin
 const like = require('./like'); // Importa a função likeLink de like.js
 // const teste = require('./test');
 
-const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=1&search=&tab=forum";
+const url = "https://web.dio.me/track/61baec04-fdf9-49ce-b7e9-942070363003?page=1&search=&tab=forum";
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -22,10 +22,10 @@ const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=
   await page.goto(url);
   
   // Chama a função coleta de links
-  await collectLinks(page);
-  // await like(page);
+  // await collectLinks(page);
+  await like(page);
 
-  console.log("Todos os links encontrados:", links.length);  // Exibe a quantidade de links coletados
+  // console.log("Todos os links encontrados:", links.length);  // Exibe a quantidade de links coletados
 
   // Fecha o navegador
   await browser.close();

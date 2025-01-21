@@ -10,10 +10,10 @@ function delay(ms) {
 async function clickVoteButtons(page) {
     try {
         // Aguarda até que os botões estejam disponíveis na página
-        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 100000 });
+        await page.waitForSelector('.fa-chevron-up', { timeout: 100000 });
     
         // Seleciona todos os botões que têm o ícone 'fa-chevron-up'
-        const buttons = await page.$$('button.btn.btn-link i.fa-chevron-up');
+        const buttons = await page.$$('.fa-chevron-up');
         
         if (buttons.length === 0) {
             console.log("Nenhum botão encontrado com o ícone de votação.");
@@ -21,18 +21,20 @@ async function clickVoteButtons(page) {
         }
     
         // Itera sobre todos os botões encontrados e clica no botão pai
-        for (const icon of buttons) {
-            const button = await icon.evaluateHandle(el => el.closest('button'));
+        for (let i = 0; i < buttons.length; i++) {
+            console.log(`Clicando no botão ${i + 1}...`);
+            const button = await buttons[i].evaluateHandle(el => el.closest('button')); // Localiza o botão pai
+
             try {
-                // Clica no botão e aguarda a interação ser concluída
+                // Clica no botão pai e aguarda a interação ser concluída
                 await button.click();
-                return true;
+                console.log(`Botão ${i + 1} clicado com sucesso.`);
+                await delay(500); // Delay entre os cliques para evitar problemas
             } catch (error) {
-                console.error("Erro ao clicar no botão:", error);
-                return false; // Retorna false se houve erro ao clicar
+                console.error(`Erro ao clicar no botão ${i + 1}:`, error);
             }
         }
-        return true; // Retorna true caso tenha clicado com sucesso
+        return true; // Retorna true após processar todos os botões
     } catch (error) {
         console.error("Erro ao tentar clicar nos botões de votação:", error);
         return false; // Retorna false em caso de erro
@@ -47,7 +49,7 @@ async function like(page) {
     // Intercepta as requisições e bloqueia imagens, vídeos, fontes e estilos
     page.on('request', (request) => {
         const resourceType = request.resourceType();
-        if (resourceType === 'image' || resourceType === 'media' || resourceType === 'font' || resourceType === 'stylesheet') {
+        if (['image', 'media', 'font', 'stylesheet'].includes(resourceType)) {
             request.abort(); // Bloqueia as requisições de imagens, vídeos, fontes e estilos
         } else {
             request.continue(); // Continua com os outros tipos de requisições
@@ -57,6 +59,7 @@ async function like(page) {
     // Coleta os links de todas as páginas usando a função importada
     const linksForum = await collectLinks(page);
     console.log(`Links coletados: ${linksForum.length}`);
+    console.log(linksForum);
 
     let curtidas = 0; // Contador de curtidas
 
@@ -66,21 +69,21 @@ async function like(page) {
         console.log(`Acessando link: ${i + 1}`);
 
         await page.goto(link, { timeout: 100000 }); // Aumenta o tempo de espera para 100 segundos
-        await page.waitForSelector('.btn.btn-link i.fa-chevron-up', { timeout: 100000 }); // Aguarda o carregamento da página
+        await delay(5000);
 
         // Chama a função para clicar nos botões de voto
         const sucesso = await clickVoteButtons(page);
 
         // Verifica se foi bem-sucedido
         if (sucesso) {
-            console.log(`Link ${i + 1} Curtido ${link}`);
+            console.log(`Link ${i + 1} curtido: ${link}`);
             curtidas++; // Incrementa o contador de curtidas
         } else {
-            console.log(`Link ${i + 1} Não curtido`);
+            console.log(`Link ${i + 1} não curtido: ${link}`);
         }
 
         // Delay entre os links
-        await page.waitForTimeout(500); // Espera 0.5 segundos
+        await delay(5000);
     }
 
     // Exibe o total de curtidas ao final

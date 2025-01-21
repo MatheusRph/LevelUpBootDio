@@ -1,5 +1,4 @@
 const puppeteer = require('puppeteer');
-const login = require('./login'); // Importa a função login de login.js
 
 const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=1&search=&tab=forum";
 
@@ -7,31 +6,32 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-(async () => {
-  let npage = 2;
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
+async function nextpages(page, npage) {
 
-  await page.goto('https://web.dio.me/login');
-  await login(page); // Executa a função de login
+  console.log('Ok');
 
-  await page.goto(url);
-  await page.waitForNavigation(); // Aguarda a navegação após o login
-  await delay(10000);
+  await delay(5000);
   // Aguarda o seletor da classe dos botões
   await page.waitForSelector('.sc-bwjutS');
 
   await page.$$('.sc-bwjutS');
+
+  console.log('Ok2');
+
+  await delay(750);
 
   // Coleta o texto de todos os botões usando o evaluate
   const collectButtons = await page.evaluate(() => {
     const buttonSelector = '.sc-bwjutS';
     const buttons = document.querySelectorAll(buttonSelector);
 
+    console.log('Ok3');
     // Retorna o texto de cada botão
     return Array.from(buttons, button => button.textContent.trim());
+
   });
 
+  await delay(750);
   // Encontrar todos os XPaths dos botões
   const xpaths = await page.evaluate(() => {
     const buttonSelector = '.sc-bwjutS';
@@ -55,9 +55,11 @@ function delay(ms) {
     buttons.forEach(button => {
       xpaths.push(getElementXPath(button));
     });
-
+    console.log('Ok4');
     return xpaths;
   });
+
+  await delay(750);
 
   // Combina os textos dos botões e seus respectivos XPaths em um dicionário
   const buttonData = collectButtons.reduce((acc, text, index) => {
@@ -65,31 +67,27 @@ function delay(ms) {
       text: text,
       xpath: xpaths[index]
     };
+    console.log('Ok5');
     return acc;
   }, {});
 
+  await delay(750);
+
   console.log(buttonData);
 
-  async function nextpage() {
-    for (let key in buttonData) {
-      if (buttonData[key].text === npage) {
-        const xpath = buttonData[key].xpath;  // Acessando o XPath do botão com texto '1'
-        console.log(xpath);
-        const buttonLocator = page.locator(`xpath=${xpath}`);
-
-        if (buttonLocator) {
-          await buttonLocator.click();  // Clica no botão localizado
-          npage += 1;
-        }
-
-      } else {
-        console.log('Não encontrado')
-      }
+  // Interage com o botão da página correta
+  for (let key in buttonData) {
+    if (buttonData[key].text === String(npage)) {
+      const xpath = buttonData[key].xpath;  // Acessando o XPath do botão correspondente
+      console.log(`Clicando no botão da página: ${npage}`);
+      await page.click(`xpath=${xpath}`);  // Clica no botão usando o XPath
+      await delay(3000);
+      console.log('Ok6');
+      return;
     }
   }
 
+  await delay(750);
+};
 
-
-  await delay(10000);
-  await browser.close();
-})();
+module.exports = nextpages;

@@ -1,6 +1,6 @@
 const nextpages = require('./test');
 
-const url = "https://web.dio.me/track/cef92400-613a-4066-ac1f-650f3b29e1b2?page=1&search=&tab=forum";
+const url = "https://web.dio.me/track/61baec04-fdf9-49ce-b7e9-942070363003?page=1&search=&tab=forum";
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +9,7 @@ function delay(ms) {
 // Função para coletar links de uma página
 async function collectPageLinks(page) {
   const links = await page.evaluate(() => {
-    const containers = document.querySelectorAll('.sc-entYTK.eIIsMU');
+    const containers = document.querySelectorAll('.sc-bqZonL'); //Change class
     return Array.from(containers).map(container => {
       const topicLinkElement = container.querySelector('.topic-link');
       return topicLinkElement ? topicLinkElement.href : null;
@@ -22,7 +22,7 @@ async function collectPageLinks(page) {
 // Função para verificar o número da última página
 async function getLastPageNumber(page) {
   const lastPageButton = await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('.sc-bwjutS'));
+    const buttons = Array.from(document.querySelectorAll('.sc-ddcbSj')); //Change class
     const lastButton = buttons[buttons.length - 1]; // Último botão de página
     return lastButton ? parseInt(lastButton.textContent.trim()) : null;
   });
@@ -61,15 +61,15 @@ async function collectPagesLinks(page) {
 
   await delay(15000);
 
-  for(i = 1; i <= lastPageButton+1; i++){
-    await delay(5000);
+  for(i = 1; i <= lastPageButton; i++){
+    await delay(750);
     // Coleta os links da página atual
     const links = await collectPageLinks(page);
     allLinks = [...allLinks, ...links]; // Adiciona os links encontrados à lista total
     console.log(`Links coletados da página ${i}:`, links);
-    await delay(15000);
-    await nextpages(page, i+1);
-    await delay(5000);
+    await delay(750);
+    await nextpages(page, i);
+    await delay(750);
   }
 
 
